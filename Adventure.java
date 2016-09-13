@@ -30,6 +30,7 @@ public class Adventure
         for(String item : inventory){
           System.out.println(item);
         }
+        System.out.println("Your coordinates are (" + northSouth + ", " + eastWest + ")");
       }
       else if (firstLetter.equals("g")){
         parts = choice.split(" ");
