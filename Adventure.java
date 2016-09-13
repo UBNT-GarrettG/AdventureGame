@@ -72,6 +72,8 @@ public class Adventure
               eastWest--;
             }
             break;
+          default:
+            System.out.println("You did not put in a valid direction");
         }
         System.out.println("Your coordinates are (" + northSouth + ", " + eastWest + ")");
       }
