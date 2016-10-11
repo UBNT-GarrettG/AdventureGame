@@ -28,6 +28,11 @@ public class Map
     return columns;
   }
 
+  public char GetTerrain(int row, int column)
+  {
+    return grid[row][column];
+  }
+
   public void PrintTerrain(GameChar location)
   {
     String[] position = location.GetCoordinates().split(",");
