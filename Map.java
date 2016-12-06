@@ -1,21 +1,38 @@
 import java.io.*;
 import java.util.*;
 
-public class Map
+public class Map implements Serializable
 {
+  private final int PIC_PATHS = 7;
   private int rows;
   private int columns;
   private String[] map;
   private char[][] grid;
   private String mapFile;
-  private Scanner scanner = null;
+  private String tileSize;
+  private String itemFilePath;
+  private String[] picFilePaths;
+  private transient Scanner scanner = null;
 
   public Map(String filename)
   {
     mapFile = filename;
+    picFilePaths = new String[PIC_PATHS];
     this.SetRowsColsAndMap();
     grid = new char[rows][columns];
     this.SetGrid();
+  }
+
+  public String GetFileContents()
+  {
+    String returnString = "";
+    returnString = tileSize + ";" + itemFilePath;
+    return returnString;
+  }
+
+  public String[] GetpicFiles()
+  {
+    return picFilePaths;
   }
 
   public int GetRows()
@@ -33,7 +50,7 @@ public class Map
     return grid[row][column];
   }
 
-  public void PrintTerrain(GameChar location)
+  public String PrintTerrain(GameChar location)
   {
     String[] position = location.GetCoordinates().split(",");
     int row = Integer.parseInt(position[0]);
@@ -45,88 +62,49 @@ public class Map
     int minCol = column - vis;
     int maxCol = column + vis;
 
-    System.out.println("You are in terrain " + grid[row][column]);
+    char[] message = new char[30];
+    int index = 0;
 
-    if (minRow >= 0 && minCol >= 0){
-      PrintTerrainTile(minRow, minCol);
+    for (int i = minRow; i <= maxRow; i++){
+      if (i < 0 || i >= rows){
+        for (int j = minCol; j <= maxCol; j++){
+          message[index] = PrintOB();
+          index++;
+        }
+      }
+      else{
+        for(int j = minCol; j <= maxCol; j++){
+          if (j < 0 || j >= columns){
+            message[index] = PrintOB();
+          }
+          else {
+            message[index] = PrintTerrainTile(i, j);
+          }
+          index++;
+        }
+      }
+      index++;
     }
-    else{
-      PrintOB();
-    }
-
-    if (minRow >= 0){
-      PrintTerrainTile(minRow, column);
-    }
-    else{
-      PrintOB();
-    }
-
-    if (minRow >= 0 && maxCol < columns){
-      PrintTerrainTile(minRow, maxCol);
-    }
-    else{
-      PrintOB();
-    }
-
-    System.out.print("\n");
-
-    if (minCol >= 0){
-      PrintTerrainTile(row, minCol);
-    }
-    else{
-      PrintOB();
-    }
-
-    PrintTerrainTile(row, column);
-
-    if (maxCol < columns){
-      PrintTerrainTile(row, maxCol);
-    }
-    else{
-      PrintOB();
-    }
-
-    System.out.print("\n");
-
-    if (maxRow < rows && minCol >= 0){
-      PrintTerrainTile(maxRow, minCol);
-    }
-    else{
-      PrintOB();
-    }
-
-    if (maxRow < rows){
-      PrintTerrainTile(maxRow, column);
-    }
-    else{
-      PrintOB();
-    }
-
-    if (maxRow < rows && maxCol < columns){
-      PrintTerrainTile(maxRow, maxCol);
-    }
-    else{
-      PrintOB();
-    }
-
-    System.out.print("\n");
-
+    String newMessage = new String(message);
+    return newMessage;
   }
 
-  private void PrintTerrainTile(int row, int column)
+  private char PrintTerrainTile(int row, int column)
   {
-    System.out.print(grid[row][column]);
+    return grid[row][column];
   }
 
-  private void PrintOB()
+  private char PrintOB()
   {
     char outOfBounds = 'X';
-    System.out.print(outOfBounds);
+    return outOfBounds;
   }
 
   private void SetRowsColsAndMap()
   {
     boolean firstLine = true;
+    boolean gotTileSize = false;
+    boolean gotItemFile = false;
     int index = 0;
     try {
       scanner = new Scanner(new File(mapFile));
@@ -146,10 +124,24 @@ public class Map
         map = new String[rows];
         firstLine = false;
       }
-      else{
+      else if (index < rows && !gotTileSize){
         map[index] = line;
         index++;
       }
+      else if (index >= rows && !gotTileSize) {
+        tileSize = line;
+        gotTileSize = true;
+      }
+      else if (gotTileSize && !gotItemFile){
+        itemFilePath = line;
+        gotItemFile = true;
+        index = 0;
+      }
+      else if (gotTileSize && gotItemFile){
+        picFilePaths[index] = line;
+        index++;
+      }
+
     }
   }
 

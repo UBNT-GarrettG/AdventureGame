@@ -1,28 +1,31 @@
+import java.util.*;
+import java.io.*;
 
-public class GameChar
+public class GameChar implements Serializable
 {
   private final int MAX_NORTH_SOUTH;
   private final int MAX_EAST_WEST;
   private int northSouth;
   private int eastWest;
   private int visibility;
-  private String[] inventory =  new String[]{"brass lantern", "rope", "rations", "staff"};
-
+  //private String[] inventory =  new String[]{"brass lantern", "rope", "rations", "staff"};
+  private List<String> inventory = new ArrayList<String>(Arrays.asList("brass lantern", "rope", "rations", "staff"));
   public GameChar(int rows, int columns)
   {
     MAX_NORTH_SOUTH = rows - 1;
     MAX_EAST_WEST = columns - 1;
     northSouth = 0;
     eastWest = 0;
-    visibility = 1;
+    visibility = 2;
   }
 
-  public void ShowInventory()
+  public String GetInventory()
   {
-    System.out.println("These are the items in your inventory: ");
+    String message = "These are the items in your inventory: \n";
     for(String item : inventory){
-      System.out.println(item);
+      message += item + "\n";
     }
+    return message;
   }
 
   public void PrintCoordinates()
@@ -30,48 +33,84 @@ public class GameChar
     System.out.println("Your coordinates are (" + northSouth + ", " + eastWest + ")");
   }
 
-  public void Move(String direction)
+  public String Move(String direction)
   {
+    String message = "";
     switch(direction){
       case "n":
         if(northSouth == 0){
-          System.out.println("You cannot go any further North!");
+          message = "You cannot go any further North!";
         }
         else{
-          System.out.println("Moving North...");
+          message = "Moving North...";
           northSouth--;
         }
         break;
       case "s":
         if(northSouth < MAX_NORTH_SOUTH){
-          System.out.println("Moving South...");
+          message = "Moving South...";
           northSouth++;
         }
         else{
-          System.out.println("You cannot go any further South!");
+          message = "You cannot go any further South!";
         }
         break;
       case "e":
         if(eastWest < MAX_EAST_WEST){
-          System.out.println("Moving East...");
+          message = "Moving East...";
           eastWest++;
         }
         else{
-          System.out.println("You cannot go any further East!");
+          message = "You cannot go any further East!";
         }
         break;
       case "w":
         if(eastWest == 0){
-          System.out.println("You cannot go any further West!");
+          message = "You cannot go any further West!";
         }
         else{
-          System.out.println("Moving West...");
+          message = "Moving West...";
           eastWest--;
         }
         break;
       default:
-        System.out.println("You did not put in a valid direction");
+        message = "You did not put in a valid direction";
     }
+    return message;
+  }
+
+  public String Drop(String itemName, Adventure adventure)
+  {
+    boolean itemDropped = false;
+    for (String item : inventory){
+      if (itemName.equals(item)){
+          int index = inventory.indexOf(item);
+          inventory.remove(index);
+          itemDropped = true;
+          break;
+      }
+    }
+
+    if (itemDropped){
+      adventure.AddItem(itemName);
+      return itemName + " dropped";
+    }
+    else{
+      return itemName + " is not in your inventory";
+    }
+  }
+
+  public String Take(String itemName, Adventure adventure)
+  {
+    String message;
+    if (adventure.PopItem(itemName)){
+      inventory.add(itemName);
+      message = "Added " + itemName + " to inventory";
+    }
+    else{
+      message = "Could not take " + itemName + " invalid item";
+    }
+    return message;
   }
 
   public String GetCoordinates()
