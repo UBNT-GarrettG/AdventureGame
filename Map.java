@@ -96,7 +96,7 @@ public class Map implements Serializable
 
   private char PrintOB()
   {
-    char outOfBounds = 'X';
+    char outOfBounds = '-';
     return outOfBounds;
   }
 

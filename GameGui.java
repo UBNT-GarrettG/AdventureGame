@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.*;
+import java.util.List;
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
@@ -17,6 +19,7 @@ public class GameGui extends JFrame implements ActionListener
   private Adventure adventure;
   private String imageSize, loadPath;
   private boolean loaded;
+  private List<Pic> picPaths = new ArrayList<Pic>();
 
   public GameGui(String mapFile)
   {
@@ -59,6 +62,7 @@ public class GameGui extends JFrame implements ActionListener
     loaded = false;
     getRootPane().setDefaultButton(submit);
     adventure = new Adventure(mapFile);
+    SetPicPath();
     SetMap(adventure.InitialMap());
     imageSize = adventure.SeparateItemAndPic();
   }
@@ -146,42 +150,38 @@ public class GameGui extends JFrame implements ActionListener
     }
   }
 
+  public void SetPicPath()
+  {
+    Map setMap = adventure.GetMap();
+    String[] pics = setMap.GetpicFiles();
+    String[] parts = {};
+    for (String s : pics){
+      parts = s.split(";");
+      Pic pic = new Pic(parts[0], parts[1], parts[2]);
+      picPaths.add(pic);
+    }
+  }
+
   public void SetMap(String mapString)
   {
-    String forest = "Images/forest.png";
-    String mountain = "Images/mountain.png";
-    String out = "Images/out.png";
-    String person = "Images/person.png";
-    String plain = "Images/plain.png";
-    String water = "Images/water.png";
-    String treasure = "Images/treasure.png";
     String current = "";
 
     for (int i = 0; i < mapString.length(); i++)
     {
       char c = mapString.charAt(i);
-      switch(c){
-        case '.' :
-          current = plain;
-          break;
-        case '~' :
-          current = water;
-          break;
-        case 'M' :
-          current = mountain;
-          break;
-        case 'f' :
-          current = forest;
-          break;
-        case 'X' :
-          current = out;
-          break;
-        case '*' :
-          current = treasure;
-          break;
+      String s = Character.toString(c);
+      for (Pic p : picPaths){
+        if (s.equals(p.GetSymbol())){
+          current = p.GetPath();
+        }
       }
       if (i == 14){
-        current = person;
+        String person = "person";
+        for (Pic p : picPaths){
+          if (person.equals(p.GetName())){
+            current = p.GetPath();
+          }
+        }
       }
       if (current != ""){
         ImageComponent tile = new ImageComponent(current);

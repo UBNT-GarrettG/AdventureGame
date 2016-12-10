@@ -8,7 +8,6 @@ public class GameChar implements Serializable
   private int northSouth;
   private int eastWest;
   private int visibility;
-  //private String[] inventory =  new String[]{"brass lantern", "rope", "rations", "staff"};
   private List<String> inventory = new ArrayList<String>(Arrays.asList("brass lantern", "rope", "rations", "staff"));
   public GameChar(int rows, int columns)
   {
